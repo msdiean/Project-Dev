@@ -1,16 +1,8 @@
 terraform {
   backend "s3" {
-    bucket         = "e2e-eks-three-tier-devsecops-project-bucket"
-    region         = "us-east-1"
+    bucket         = "karthik-278217"
     key            = "jenkins-tfstate/terraform.tfstate"
-    dynamodb_table = "Lock-Files"
+    region         = "ap-south-1"
     encrypt        = true
-  }
-  required_version = ">=0.13.0"
-  required_providers {
-    aws = {
-      version = ">= 2.7.0"
-      source  = "hashicorp/aws"
-    }
   }
 }
