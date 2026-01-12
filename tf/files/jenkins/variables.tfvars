@@ -4,5 +4,6 @@ subnet-name   = "Jenkins-subnet"
 rt-name       = "Jenkins-rt"
 sg-name       = "Jenkins-sg"
 instance-name = "Jenkins-server"
-key-name      = "Ujwal-NV"
+key-name      = "key-test"
+
 iam-role      = "Jenkins-iam-role"
