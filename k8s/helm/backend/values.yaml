@@ -4,11 +4,11 @@ replicaCount: 2
 
 image:
   repository: 767828733016.dkr.ecr.ap-south-1.amazonaws.com/backend
-  tag: "latest"                # ✅ MUST exist in ECR
+  tag: "1"
   pullPolicy: Always
 
 imagePullSecrets:
-  - name: ecr-registry-secret   # ✅ Required for private ECR
+  - name: ecr-registry-secret
 
 service:
   type: ClusterIP
@@ -26,13 +26,10 @@ probes:
     path: /healthz
     initialDelaySeconds: 2
     periodSeconds: 5
-
   readiness:
     path: /ready
     initialDelaySeconds: 5
     periodSeconds: 5
-    successThreshold: 1
-
   startup:
     path: /started
     periodSeconds: 10
