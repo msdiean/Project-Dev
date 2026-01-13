@@ -1,13 +1,20 @@
+# Stage 1 - Build
 FROM node:14 AS backend
 WORKDIR /usr/src/app
-COPY ../../../app/backend/. .
+
+# Copy package files first (better cache)
+COPY package*.json ./
 RUN npm install
 
-FROM node:14.0.0-alpine
+# Copy remaining backend code
+COPY . .
+
+# Stage 2 - Runtime
+FROM node:14-alpine
 WORKDIR /app
-COPY --from=backend /usr/src/app/node-modules ./node-modules
-COPY --from=backend /usr/src/app/modules .
-COPY --from=backend /usr/src/app/routes .
-COPY --from=backend /usr/src/app/db.js .
-COPY --from=backend /usr/src/app/index.js .
+
+COPY --from=backend /usr/src/app/node_modules ./node_modules
+COPY --from=backend /usr/src/app .
+
+EXPOSE 3000
 CMD ["node", "index.js"]
