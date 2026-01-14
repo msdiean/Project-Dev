@@ -12,30 +12,14 @@ imagePullSecrets:
 
 service:
   type: ClusterIP
-  port: 80
-  targetPort: 3000
 
 env:
   backendUrl: "http://api:3500"
 
-ingress:
-  enabled: true
-  className: alb
-  annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-  hosts:
-    - host: ""
-      paths:
-        - path: /
-          pathType: Prefix
-          serviceName: frontend
-          servicePort: 80
-        - path: /api
-          pathType: Prefix
-          serviceName: api
-          servicePort: 3500
-
-resources: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
