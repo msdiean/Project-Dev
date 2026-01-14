@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   accessModes:
-    - {{ .Values.persistence.accessMode }}
+    - ReadWriteOnce
   storageClassName: {{ .Values.persistence.storageClass }}
   resources:
     requests:
