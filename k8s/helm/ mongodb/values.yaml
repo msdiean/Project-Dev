@@ -11,12 +11,19 @@ service:
   name: mongodb-svc
   port: 27017
 
+auth:
+  secretName: mongo-sec
+  usernameKey: username
+  passwordKey: password
+
 persistence:
   enabled: true
-  storage: 1Gi
+  storageClass: gp2        # ✅ EKS EBS
   accessMode: ReadWriteOnce
-  storageClassName: ""
+  size: 1Gi
+  mountPath: /data/db
 
-secrets:
-  username: admin
-  password: password123   # Three-Tier-Project
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
