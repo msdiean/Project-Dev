@@ -8,6 +8,7 @@ spec:
   selector:
     role: frontend
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
+    - name: http
+      port: 80
+      targetPort: 3000
       protocol: TCP
