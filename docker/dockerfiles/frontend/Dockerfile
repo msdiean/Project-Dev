@@ -1,11 +1,29 @@
-FROM node:14 AS frontend
+# ---------- Build Stage ----------
+FROM node:14 AS build
 WORKDIR /usr/src/app
-COPY ../../../app/frontend/. .
+
+# Copy only package files first (layer caching)
+COPY package*.json ./
 RUN npm install
 
-FROM node:14.0.0-alpine
-WORKDIR /app
-COPY --from=frontend /usr/src/app/node-modules ./node-modules
-COPY --from=frontend /usr/src/app/public .
-COPY --from=frontend /usr/src/app/src .
-CMD ["npm", "start"]
+# Copy application source
+COPY . .
+
+# Build React app
+RUN npm run build
+
+
+# ---------- Runtime Stage ----------
+FROM nginx:alpine
+
+# Remove default nginx config
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy build output to nginx
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
