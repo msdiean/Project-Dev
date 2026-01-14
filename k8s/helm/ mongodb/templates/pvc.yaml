@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode }}
-  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   resources:
     requests:
-      storage: {{ .Values.persistence.storage }}
+      storage: {{ .Values.persistence.size }}
