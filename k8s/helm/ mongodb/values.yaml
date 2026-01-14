@@ -1,29 +1,21 @@
 namespace: three-tier
 
-replicaCount: 1
-
 image:
   repository: mongo
   tag: "4.4.6"
   pullPolicy: IfNotPresent
 
+replicaCount: 1
+
 service:
-  name: mongodb-svc
   port: 27017
+
+persistence:
+  enabled: true
+  storageClass: gp2
+  size: 1Gi
 
 auth:
   secretName: mongo-sec
   usernameKey: username
   passwordKey: password
-
-persistence:
-  enabled: true
-  storageClass: gp2        # ✅ EKS EBS
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  mountPath: /data/db
-
-resources:
-  requests:
-    cpu: 100m
-    memory: 256Mi
