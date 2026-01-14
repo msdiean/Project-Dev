@@ -19,9 +19,7 @@ env:
 
 resources: {}
 
-# ======================
-# Ingress (NEW – Added)
-# ======================
+# ✅ ADDED (Ingress – ALB compatible)
 ingress:
   enabled: true
   className: alb
@@ -36,7 +34,11 @@ ingress:
           pathType: Prefix
           serviceName: frontend
           servicePort: 3000
-        - path: /api
-          pathType: Prefix
+        - path: /healthz
+          pathType: Exact
+          serviceName: api
+          servicePort: 3500
+        - path: /ready
+          pathType: Exact
           serviceName: api
           servicePort: 3500
