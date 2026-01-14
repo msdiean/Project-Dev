@@ -3,8 +3,8 @@ namespace: three-tier
 replicaCount: 1
 
 image:
-  repository: 814495875142.dkr.ecr.us-east-1.amazonaws.com/frontend
-  tag: "latest"        # ✅ FIXED (important)
+  repository: 767828733016.dkr.ecr.ap-south-1.amazonaws.com/frontend
+  tag: "latest"
   pullPolicy: Always
 
 imagePullSecrets:
@@ -15,4 +15,6 @@ service:
   port: 3000
 
 env:
-  backendUrl: "<lb-dns>
+  backendUrl: "http://api:3500"
+
+resources: {}
