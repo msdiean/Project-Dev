@@ -1,0 +1,22 @@
+namespace: three-tier
+
+replicaCount: 1
+
+image:
+  repository: mongo
+  tag: "4.4.6"
+  pullPolicy: IfNotPresent
+
+service:
+  name: mongodb-svc
+  port: 27017
+
+persistence:
+  enabled: true
+  storage: 1Gi
+  accessMode: ReadWriteOnce
+  storageClassName: ""
+
+secrets:
+  username: admin
+  password: password123   # Three-Tier-Project
