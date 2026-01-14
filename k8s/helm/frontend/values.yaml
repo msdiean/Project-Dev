@@ -18,3 +18,25 @@ env:
   backendUrl: "http://api:3500"
 
 resources: {}
+
+# ======================
+# Ingress (NEW – Added)
+# ======================
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+  hosts:
+    - paths:
+        - path: /
+          pathType: Prefix
+          serviceName: frontend
+          servicePort: 3000
+        - path: /api
+          pathType: Prefix
+          serviceName: api
+          servicePort: 3500
