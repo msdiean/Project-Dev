@@ -1,29 +1,15 @@
-# ---------- Build Stage ----------
-FROM node:14 AS build
+FROM node:14 AS frontend
+
 WORKDIR /usr/src/app
 
-# Copy only package files first (layer caching)
-COPY package*.json ./
-RUN npm install
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
-# Copy application source
 COPY . .
-
-# Build React app
+RUN npm install
 RUN npm run build
 
-
-# ---------- Runtime Stage ----------
-FROM nginx:alpine
-
-# Remove default nginx config
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy build output to nginx
-COPY --from=build /usr/src/app/build /usr/share/nginx/html
-
-# Expose port
-EXPOSE 80
-
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:14-alpine
+WORKDIR /app
+COPY --from=frontend /usr/src/app/build ./build
+RUN npm install -g serve
+CMD ["serve", "-s", "build", "-l", "3000"]
