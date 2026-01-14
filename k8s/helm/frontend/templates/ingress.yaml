@@ -5,23 +5,25 @@ metadata:
   name: frontend-ingress
   namespace: {{ .Values.namespace }}
   annotations:
-{{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
-{{- end }}
+{{ toYaml .Values.ingress.annotations | indent 4 }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
     - http:
         paths:
-{{- range .Values.ingress.hosts }}
-{{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: {{ .Values.ingress.paths.frontend.path }}
+            pathType: Prefix
             backend:
               service:
-                name: {{ .serviceName }}
+                name: {{ .Values.ingress.paths.frontend.serviceName }}
                 port:
-                  number: {{ .servicePort }}
-{{- end }}
-{{- end }}
+                  number: {{ .Values.ingress.paths.frontend.servicePort }}
+
+          - path: {{ .Values.ingress.paths.backend.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.ingress.paths.backend.serviceName }}
+                port:
+                  number: {{ .Values.ingress.paths.backend.servicePort }}
 {{- end }}
