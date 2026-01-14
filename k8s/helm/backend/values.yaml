@@ -16,7 +16,7 @@ service:
 
 env:
   mongo:
-    connStr: mongodb://mongodb-svc:27017/todo?directConnection=true
+    connStr: mongodb://mongodb-svc.three-tier.svc.cluster.local:27017/todo?directConnection=true
     secretName: mongo-sec
     usernameKey: username
     passwordKey: password
