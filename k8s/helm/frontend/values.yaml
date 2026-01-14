@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: 767828733016.dkr.ecr.ap-south-1.amazonaws.com/frontend
-  tag: "latest"
+  tag: latest
   pullPolicy: Always
 
 imagePullSecrets:
@@ -12,7 +12,11 @@ imagePullSecrets:
 
 service:
   type: ClusterIP
-  port: 80   # IMPORTANT: frontend must expose 80 (nginx)
+  port: 80
+  targetPort: 3000
+
+env:
+  backendUrl: "http://api:3500"
 
 ingress:
   enabled: true
@@ -22,17 +26,16 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-  paths:
-    frontend:
-      path: /
-      serviceName: frontend
-      servicePort: 80
-    backend:
-      path: /api
-      serviceName: api
-      servicePort: 3500
-
-env:
-  backendUrl: "/api"   # frontend talks to backend via ingress
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: frontend
+          servicePort: 80
+        - path: /api
+          pathType: Prefix
+          serviceName: api
+          servicePort: 3500
 
 resources: {}
