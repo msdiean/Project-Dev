@@ -16,6 +16,9 @@ persistence:
   size: 1Gi
 
 auth:
-  secretName: mongo-sec
-  usernameKey: username
-  passwordKey: password
+  enabled: true
+  rootUser: admin
+  rootPassword: admin123
+  database: appdb
+  username: appuser
+  password: app123
