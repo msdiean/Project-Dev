@@ -7,10 +7,11 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # alb.ingress.kubernetes.io/subnets: "subnet-0aa439b4ddafcca10,subnet-0b95df318219145ca,subnet-0ccca36474902829a"
 spec:
   ingressClassName: alb
   rules:
-    - host: ujwal5ghare.com
+    - host: k8s-threetie-frontend-f87f5c2314-712047538.ap-south-1.elb.amazonaws.com
       http:
         paths:
           - path: /api
@@ -20,7 +21,6 @@ spec:
                 name: api
                 port:
                   number: 3500
-
           - path: /healthz
             pathType: Exact
             backend:
@@ -28,7 +28,6 @@ spec:
                 name: api
                 port:
                   number: 3500
-
           - path: /ready
             pathType: Exact
             backend:
@@ -36,7 +35,6 @@ spec:
                 name: api
                 port:
                   number: 3500
-
           - path: /started
             pathType: Exact
             backend:
@@ -44,11 +42,10 @@ spec:
                 name: api
                 port:
                   number: 3500
-
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: frontend
                 port:
-                  number: 80   ✅ FIXED
+                  number: 30
