@@ -5,14 +5,8 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     role: frontend
-    env: demo
 spec:
   replicas: {{ .Values.replicaCount }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 25%
   selector:
     matchLabels:
       role: frontend
@@ -29,6 +23,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: REACT_APP_BACKEND_URL
-              value: {{ .Values.env.backendUrl | quote }}
+              value: "{{ .Values.env.backendUrl }}"
           ports:
-            - containerPort: 80   # ✅ nginx listens on 80
+            - containerPort: 3000
+          resources:
+{{- toYaml .Values.resources | nindent 12 }}
