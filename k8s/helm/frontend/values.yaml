@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: 767828733016.dkr.ecr.ap-south-1.amazonaws.com/frontend
-  tag: "latest"        # ✅ FIXED (important)
+  tag: "latest"
   pullPolicy: Always
 
 imagePullSecrets:
@@ -12,9 +12,34 @@ imagePullSecrets:
 
 service:
   type: ClusterIP
-  port: 3000
+  port: 80        # ✅ frontend service port (nginx)
 
 env:
-  backendUrl: "<lb-dns>/api/tasks"
+  backendUrl: "/api"   # ✅ IMPORTANT (Ingress handles routing)
 
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
 
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+  paths:
+    frontend:
+      path: /
+      serviceName: frontend
+      servicePort: 80
+
+    backend:
+      path: /api
+      serviceName: api
+      servicePort: 3500
