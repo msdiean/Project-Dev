@@ -16,10 +16,9 @@ service:
 
 env:
   mongo:
-    connStr: mongodb://mongodb-svc.three-tier.svc.cluster.local:27017/todo?directConnection=true
+    # 🔴 DO NOT hardcode credentials here
     secretName: mongo-sec
-    usernameKey: username
-    passwordKey: password
+    connKey: mongo-url   # 👈 NEW KEY (single source of truth)
 
 probes:
   liveness:
