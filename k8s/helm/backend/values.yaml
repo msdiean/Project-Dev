@@ -16,17 +16,17 @@ service:
 
 env:
   mongo:
-    secretName: mongo-sec   # 👈 ONLY reference
+    secretName: mongo-sec
 
 probes:
   liveness:
     path: /healthz
-    initialDelaySeconds: 2
+    initialDelaySeconds: 5
     periodSeconds: 5
 
   readiness:
     path: /ready
-    initialDelaySeconds: 5
+    initialDelaySeconds: 10
     periodSeconds: 5
 
   startup:
