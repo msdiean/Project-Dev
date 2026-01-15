@@ -1,6 +1,7 @@
 apiVersion: v2
 name: api
-description: Backend API Helm chart for three-tier app
+description: Backend API Helm chart
 type: application
 version: 0.1.0
 appVersion: "1.0"
+
