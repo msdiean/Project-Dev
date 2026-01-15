@@ -1,51 +1,29 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mainlb
-  namespace: three-tier
+  name: frontend-ingress
+  namespace: {{ .Values.namespace }}
   annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-    # alb.ingress.kubernetes.io/subnets: "subnet-0aa439b4ddafcca10,subnet-0b95df318219145ca,subnet-0ccca36474902829a"
+{{ toYaml .Values.ingress.annotations | indent 4 }}
 spec:
-  ingressClassName: alb
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - host: k8s-threetie-frontend-f87f5c2314-712047538.ap-south-1.elb.amazonaws.com
-      http:
+    - http:
         paths:
-          - path: /api
+          - path: {{ .Values.ingress.paths.frontend.path }}
             pathType: Prefix
             backend:
               service:
-                name: api
+                name: {{ .Values.ingress.paths.frontend.serviceName }}
                 port:
-                  number: 3500
-          - path: /healthz
-            pathType: Exact
-            backend:
-              service:
-                name: api
-                port:
-                  number: 3500
-          - path: /ready
-            pathType: Exact
-            backend:
-              service:
-                name: api
-                port:
-                  number: 3500
-          - path: /started
-            pathType: Exact
-            backend:
-              service:
-                name: api
-                port:
-                  number: 3500
-          - path: /
+                  number: {{ .Values.ingress.paths.frontend.servicePort }}
+
+          - path: {{ .Values.ingress.paths.backend.path }}
             pathType: Prefix
             backend:
               service:
-                name: frontend
+                name: {{ .Values.ingress.paths.backend.serviceName }}
                 port:
-                  number: 30
+                  number: {{ .Values.ingress.paths.backend.servicePort }}
+{{- end }}
