@@ -1,6 +1,6 @@
 storageClass:
-  name: gp2
-  provisioner: ebs.csi.aws.com
+  name: gp2-custom
+  provisioner: kubernetes.io/aws-ebs
   volumeBindingMode: WaitForFirstConsumer
   reclaimPolicy: Delete
   parameters:
