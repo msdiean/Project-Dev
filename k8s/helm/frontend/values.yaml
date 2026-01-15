@@ -15,7 +15,7 @@ service:
   port: 80            # ✅ service exposes 80
 
 env:
-  backendUrl: "http://api:3500"
+  backendUrl: "http://k8s-threetie-mainlb-1dd958d0ec-510853314.ap-south-1.elb.amazonaws.com/api"
 
 resources:
   requests:
