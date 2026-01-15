@@ -12,7 +12,7 @@ imagePullSecrets:
 
 service:
   type: ClusterIP
-  port: 3000
+  port: 80            # ✅ service exposes 80
 
 env:
   backendUrl: "http://api:3500"
@@ -36,7 +36,7 @@ ingress:
     frontend:
       path: /
       serviceName: frontend
-      servicePort: 3000
+      servicePort: 80      # ✅ FIXED
     backend:
       path: /api
       serviceName: api
