@@ -12,10 +12,10 @@ imagePullSecrets:
 
 service:
   type: ClusterIP
-  port: 80        # ✅ frontend service port (nginx)
+  port: 3000
 
 env:
-  backendUrl: "/api"   # ✅ IMPORTANT (Ingress handles routing)
+  backendUrl: "http://api:3500"
 
 resources:
   requests:
@@ -32,13 +32,11 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-
   paths:
     frontend:
       path: /
       serviceName: frontend
-      servicePort: 80
-
+      servicePort: 3000
     backend:
       path: /api
       serviceName: api
