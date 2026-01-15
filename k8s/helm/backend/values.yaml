@@ -16,9 +16,12 @@ service:
 
 env:
   mongo:
-    # 🔴 DO NOT hardcode credentials here
+    host: mongodb-svc.three-tier.svc.cluster.local
+    port: 27017
+    database: todo
     secretName: mongo-sec
-    connKey: mongo-url   # 👈 NEW KEY (single source of truth)
+    usernameKey: username
+    passwordKey: password
 
 probes:
   liveness:
