@@ -11,7 +11,7 @@ service:
   port: 27017
 
 persistence:
-  storageClass: gp2-custom   # from storage-class app
+  storageClass: gp2-custom
   size: 1Gi
 
 auth:
