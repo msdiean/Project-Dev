@@ -1,6 +1,6 @@
 namespace: three-tier
 
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: 767828733016.dkr.ecr.ap-south-1.amazonaws.com/backend
