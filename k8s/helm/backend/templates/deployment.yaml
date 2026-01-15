@@ -31,19 +31,14 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
+
+          # ✅ SINGLE AUTHENTICATED MONGO URL
           env:
             - name: MONGO_CONN_STR
-              value: {{ .Values.env.mongo.connStr | quote }}
-            - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.env.mongo.secretName }}
-                  key: {{ .Values.env.mongo.usernameKey }}
-            - name: MONGO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.env.mongo.secretName }}
-                  key: {{ .Values.env.mongo.passwordKey }}
+                  key: {{ .Values.env.mongo.connKey }}
 
           livenessProbe:
             httpGet:
