@@ -1,29 +1,32 @@
-{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend-ingress
+  name: mainlb
   namespace: {{ .Values.namespace }}
   annotations:
-{{ toYaml .Values.ingress.annotations | indent 4 }}
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  ingressClassName: alb
   rules:
     - http:
         paths:
-          - path: {{ .Values.ingress.paths.frontend.path }}
+          # 🔹 Backend API
+          - path: /api
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.ingress.paths.frontend.serviceName }}
+                name: api
                 port:
-                  number: {{ .Values.ingress.paths.frontend.servicePort }}
+                  number: 3500
 
-          - path: {{ .Values.ingress.paths.backend.path }}
+          # 🔹 Frontend
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.ingress.paths.backend.serviceName }}
+                name: frontend
                 port:
-                  number: {{ .Values.ingress.paths.backend.servicePort }}
-{{- end }}
+                  number: 80
