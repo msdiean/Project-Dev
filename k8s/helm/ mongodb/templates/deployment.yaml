@@ -23,12 +23,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ .Values.auth.secretName }}
-              key: {{ .Values.auth.usernameKey }}
+              key: username
         - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ .Values.auth.secretName }}
-              key: {{ .Values.auth.passwordKey }}
+              key: password
         volumeMounts:
         - name: mongo-storage
           mountPath: /data/db
