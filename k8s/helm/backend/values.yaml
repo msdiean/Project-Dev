@@ -16,7 +16,7 @@ service:
 
 env:
   mongo:
-    secretName: mongo-sec   # 🔑 reference only
+    secretName: mongo-sec
 
 probes:
   liveness:
