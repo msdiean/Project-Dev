@@ -30,21 +30,13 @@ spec:
           ports:
             - containerPort: {{ .Values.service.port }}
 
+          # ✅ SINGLE SOURCE OF TRUTH
           env:
-            - name: MONGO_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.env.mongo.secretName }}
-                  key: {{ .Values.env.mongo.usernameKey }}
-
-            - name: MONGO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.env.mongo.secretName }}
-                  key: {{ .Values.env.mongo.passwordKey }}
-
             - name: MONGO_CONN_STR
-              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@{{ .Values.env.mongo.host }}:{{ .Values.env.mongo.port }}/{{ .Values.env.mongo.database }}?authSource=admin"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.mongo.secretName }}
+                  key: mongo-url
 
           livenessProbe:
             httpGet:
