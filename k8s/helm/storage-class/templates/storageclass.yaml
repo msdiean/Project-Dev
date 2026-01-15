@@ -8,3 +8,4 @@ reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
 parameters:
   type: {{ .Values.storageClass.parameters.type }}
   fsType: {{ .Values.storageClass.parameters.fsType }}
+
