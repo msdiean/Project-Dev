@@ -11,10 +11,8 @@ service:
   port: 27017
 
 persistence:
-  storageClass: gp2
+  storageClass: gp2-custom   # from storage-class app
   size: 1Gi
 
 auth:
   secretName: mongo-sec
-  usernameKey: username
-  passwordKey: password
