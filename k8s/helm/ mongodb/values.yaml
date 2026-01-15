@@ -11,14 +11,10 @@ service:
   port: 27017
 
 persistence:
-  enabled: true
   storageClass: gp2
   size: 1Gi
 
 auth:
-  enabled: true
-  rootUser: admin
-  rootPassword: admin123
-  database: appdb
-  username: appuser
-  password: app123
+  secretName: mongo-sec
+  usernameKey: username
+  passwordKey: password
