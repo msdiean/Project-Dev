@@ -22,9 +22,7 @@ spec:
         role: api
     spec:
       imagePullSecrets:
-{{- range .Values.imagePullSecrets }}
-        - name: {{ .name }}
-{{- end }}
+{{- toYaml .Values.imagePullSecrets | nindent 8 }}
       containers:
         - name: api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -32,13 +30,21 @@ spec:
           ports:
             - containerPort: {{ .Values.service.port }}
 
-          # ✅ SINGLE AUTHENTICATED MONGO URL
           env:
-            - name: MONGO_CONN_STR
+            - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.env.mongo.secretName }}
-                  key: {{ .Values.env.mongo.connKey }}
+                  key: {{ .Values.env.mongo.usernameKey }}
+
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.mongo.secretName }}
+                  key: {{ .Values.env.mongo.passwordKey }}
+
+            - name: MONGO_CONN_STR
+              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@{{ .Values.env.mongo.host }}:{{ .Values.env.mongo.port }}/{{ .Values.env.mongo.database }}?authSource=admin"
 
           livenessProbe:
             httpGet:
