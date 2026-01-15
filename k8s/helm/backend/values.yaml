@@ -16,22 +16,19 @@ service:
 
 env:
   mongo:
-    host: mongodb-svc.three-tier.svc.cluster.local
-    port: 27017
-    database: todo
-    secretName: mongo-sec
-    usernameKey: username
-    passwordKey: password
+    secretName: mongo-sec   # 👈 ONLY reference
 
 probes:
   liveness:
     path: /healthz
     initialDelaySeconds: 2
     periodSeconds: 5
+
   readiness:
     path: /ready
     initialDelaySeconds: 5
     periodSeconds: 5
+
   startup:
     path: /started
     periodSeconds: 10
