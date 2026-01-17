@@ -11,9 +11,10 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - http:
+    - host: www.msdiean.shop
+      http:
         paths:
-          # 🔹 Backend API
+          # Backend API
           - path: /api
             pathType: Prefix
             backend:
@@ -22,7 +23,7 @@ spec:
                 port:
                   number: 3500
 
-          # 🔹 Frontend
+          # Frontend
           - path: /
             pathType: Prefix
             backend:
