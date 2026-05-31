@@ -5,6 +5,10 @@ pipeline {
         nodejs 'nodejs'
     }
 
+    environment {
+        SCANNER_HOME = tool 'sq'
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -51,6 +55,22 @@ pipeline {
                     export NODE_OPTIONS=--openssl-legacy-provider
                     npm run build
                     '''
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('app/frontend') {
+                    withSonarQubeEnv('sonar-server') {
+                        sh """
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectName=frontend \
+                        -Dsonar.projectKey=frontend \
+                        -Dsonar.sources=src \
+                        -Dsonar.exclusions=node_modules/**,build/**
+                        """
+                    }
                 }
             }
         }
