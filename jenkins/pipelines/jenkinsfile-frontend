@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-server'
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     options {
@@ -82,15 +83,29 @@ pipeline {
                 }
             }
         }
+
+        stage('Docker Build') {
+            steps {
+                sh """
+                docker build \
+                -f docker/dockerfiles/frontend/Dockerfile \
+                -t frontend:${IMAGE_TAG} \
+                -t frontend:latest \
+                app/frontend
+                """
+            }
+        }
     }
 
     post {
         always {
             echo 'Pipeline Completed'
         }
+
         success {
             echo 'Quality Gate Passed'
         }
+
         failure {
             echo 'Quality Gate Failed or Pipeline Failed'
         }
