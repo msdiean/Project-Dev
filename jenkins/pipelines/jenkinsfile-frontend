@@ -97,6 +97,16 @@ pipeline {
         }
     }
 
+    stage('Trivy Image Scan') {
+    steps {
+        sh """
+        trivy image \
+        --severity HIGH,CRITICAL \
+        frontend:${IMAGE_TAG}
+        """
+    }
+}
+
     post {
         always {
             echo 'Pipeline Completed'
