@@ -95,17 +95,18 @@ pipeline {
                 """
             }
         }
-    }
 
-    stage('Trivy Image Scan') {
-    steps {
-        sh """
-        trivy image \
-        --severity HIGH,CRITICAL \
-        frontend:${IMAGE_TAG}
-        """
+        stage('Trivy Image Scan') {
+            steps {
+                sh """
+                trivy image \
+                --exit-code 1 \
+                --severity HIGH,CRITICAL \
+                frontend:${IMAGE_TAG}
+                """
+            }
+        }
     }
-}
 
     post {
         always {
@@ -113,13 +114,11 @@ pipeline {
         }
 
         success {
-            echo 'Quality Gate Passed'
+            echo 'Pipeline Succeeded'
         }
 
         failure {
-            echo 'Quality Gate Failed or Pipeline Failed'
+            echo 'Pipeline Failed'
         }
     }
 }
-
-
