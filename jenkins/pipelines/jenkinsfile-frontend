@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 tools {
     nodejs 'nodejs'
 }
@@ -43,7 +42,7 @@ stages {
             ]) {
                 script {
                     env.AWS_ACCOUNT_ID = sh(
-                        script: "aws sts get-caller-identity --query Account --output text",
+                        script: 'aws sts get-caller-identity --query Account --output text',
                         returnStdout: true
                     ).trim()
 
@@ -150,14 +149,10 @@ stages {
     stage('Tag & Push Image') {
         steps {
             sh '''
-            docker tag frontend:${IMAGE_TAG} \
-            ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
-
-            docker tag frontend:${IMAGE_TAG} \
-            ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
+            docker tag frontend:${IMAGE_TAG} ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
+            docker tag frontend:${IMAGE_TAG} ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
 
             docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
-
             docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
             '''
         }
@@ -177,6 +172,4 @@ post {
         echo 'Pipeline Failed'
     }
 }
-```
 
-}
