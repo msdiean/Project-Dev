@@ -7,14 +7,10 @@ tools {
 
 environment {
     SCANNER_HOME = tool 'sonar-server'
-
     IMAGE_TAG = "${BUILD_NUMBER}"
 
     AWS_DEFAULT_REGION = 'ap-south-2'
     AWS_ECR_REPO_NAME = 'f-end'
-
-    GIT_USER_NAME = 'msdiean'
-    GIT_REPO_NAME = 'Project-Dev'
 }
 
 options {
@@ -52,6 +48,7 @@ stages {
 
                     env.REPOSITORY_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com"
 
+                    echo "AWS Account ID: ${env.AWS_ACCOUNT_ID}"
                     echo "Repository URI: ${env.REPOSITORY_URI}"
                 }
             }
@@ -76,12 +73,12 @@ stages {
         }
     }
 
-    stage('Unit Test') {
+    stage('Unit Test & Coverage') {
         steps {
             dir('app/frontend') {
                 sh '''
                 export NODE_OPTIONS=--openssl-legacy-provider
-                CI=true npm test -- --watchAll=false --passWithNoTests
+                CI=true npm test -- --coverage --watchAll=false --passWithNoTests
                 '''
             }
         }
@@ -107,7 +104,8 @@ stages {
                     -Dsonar.projectName=frontend \
                     -Dsonar.projectKey=frontend \
                     -Dsonar.sources=src \
-                    -Dsonar.exclusions=node_modules/**,build/**
+                    -Dsonar.exclusions=node_modules/**,build/** \
+                    -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
                     """
                 }
             }
@@ -173,32 +171,6 @@ stages {
 
             docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
             '''
-        }
-    }
-
-    stage('Update GitOps Repo') {
-        steps {
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'github-creds',
-                    usernameVariable: 'GIT_USER',
-                    passwordVariable: 'GH_TOKEN'
-                )
-            ]) {
-                sh '''
-                git config --global user.email "jenkins@ci.com"
-                git config --global user.name "jenkins"
-
-                sed -i "s/tag:.*/tag: ${IMAGE_TAG}/" \
-                k8s/helm/frontend/values.yaml
-
-                git add k8s/helm/frontend/values.yaml
-
-                git commit -m "Update frontend image to ${IMAGE_TAG}" || true
-
-                git push https://${GIT_USER}:${GH_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-                '''
-            }
         }
     }
 }
