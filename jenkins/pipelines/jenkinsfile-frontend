@@ -1,6 +1,7 @@
 pipeline {
 agent any
 
+```
 tools {
     nodejs 'nodejs'
 }
@@ -36,16 +37,21 @@ stages {
 
     stage('Get AWS Account ID') {
         steps {
-            script {
-                env.AWS_ACCOUNT_ID = sh(
-                    script: "aws sts get-caller-identity --query Account --output text",
-                    returnStdout: true
-                ).trim()
+            withCredentials([
+                [$class: 'AmazonWebServicesCredentialsBinding',
+                 credentialsId: 'aws-creds']
+            ]) {
+                script {
+                    env.AWS_ACCOUNT_ID = sh(
+                        script: "aws sts get-caller-identity --query Account --output text",
+                        returnStdout: true
+                    ).trim()
 
-                env.REPOSITORY_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com"
+                    env.REPOSITORY_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com"
 
-                echo "AWS Account ID: ${env.AWS_ACCOUNT_ID}"
-                echo "Repository URI: ${env.REPOSITORY_URI}"
+                    echo "AWS Account ID: ${env.AWS_ACCOUNT_ID}"
+                    echo "Repository URI: ${env.REPOSITORY_URI}"
+                }
             }
         }
     }
