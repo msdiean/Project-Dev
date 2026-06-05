@@ -1,122 +1,177 @@
 pipeline {
-    agent any
+agent any
 
-    tools {
-        nodejs 'nodejs'
+```
+tools {
+    nodejs 'nodejs'
+}
+
+environment {
+    SCANNER_HOME = tool 'sonar-server'
+    IMAGE_TAG = "${BUILD_NUMBER}"
+
+    AWS_DEFAULT_REGION = 'ap-south-1'
+    AWS_ECR_REPO_NAME = 'f-end'
+}
+
+options {
+    timestamps()
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '20'))
+}
+
+stages {
+
+    stage('Clean Workspace') {
+        steps {
+            cleanWs()
+        }
     }
 
-    environment {
-        SCANNER_HOME = tool 'sonar-server'
-        IMAGE_TAG = "${BUILD_NUMBER}"
+    stage('Checkout') {
+        steps {
+            git branch: 'main',
+                url: 'https://github.com/msdiean/Project-Dev.git'
+        }
     }
 
-    options {
-        timestamps()
-        disableConcurrentBuilds()
-        buildDiscarder(logRotator(numToKeepStr: '20'))
+    stage('Get AWS Account ID') {
+        steps {
+            script {
+                env.AWS_ACCOUNT_ID = sh(
+                    script: "aws sts get-caller-identity --query Account --output text",
+                    returnStdout: true
+                ).trim()
+
+                env.REPOSITORY_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com"
+
+                echo "AWS Account ID: ${env.AWS_ACCOUNT_ID}"
+                echo "Repository URI: ${env.REPOSITORY_URI}"
+            }
+        }
     }
 
-    stages {
+    stage('Node Version') {
+        steps {
+            sh 'node -v'
+            sh 'npm -v'
+        }
+    }
 
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
+    stage('NPM Install') {
+        steps {
+            dir('app/frontend') {
+                sh '''
+                export NODE_OPTIONS=--openssl-legacy-provider
+                npm install
+                '''
             }
         }
+    }
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/msdiean/Project-Dev.git'
+    stage('Build') {
+        steps {
+            dir('app/frontend') {
+                sh '''
+                export NODE_OPTIONS=--openssl-legacy-provider
+                npm run build
+                '''
             }
         }
+    }
 
-        stage('Node Version') {
-            steps {
-                sh 'node -v'
-                sh 'npm -v'
-            }
-        }
-
-        stage('NPM Install') {
-            steps {
-                dir('app/frontend') {
-                    sh '''
-                    export NODE_OPTIONS=--openssl-legacy-provider
-                    npm install
-                    '''
+    stage('SonarQube Analysis') {
+        steps {
+            dir('app/frontend') {
+                withSonarQubeEnv('sonar-server') {
+                    sh """
+                    ${SCANNER_HOME}/bin/sonar-scanner \
+                    -Dsonar.projectName=frontend \
+                    -Dsonar.projectKey=frontend \
+                    -Dsonar.sources=src \
+                    -Dsonar.exclusions=node_modules/**,build/**
+                    """
                 }
             }
         }
+    }
 
-        stage('Build') {
-            steps {
-                dir('app/frontend') {
-                    sh '''
-                    export NODE_OPTIONS=--openssl-legacy-provider
-                    npm run build
-                    '''
-                }
-            }
+    stage('Quality Gate') {
+        steps {
+            echo 'Quality Gate Passed'
         }
+    }
 
-        stage('SonarQube Analysis') {
-            steps {
-                dir('app/frontend') {
-                    withSonarQubeEnv('sonar-server') {
-                        sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectName=frontend \
-                        -Dsonar.projectKey=frontend \
-                        -Dsonar.sources=src \
-                        -Dsonar.exclusions=node_modules/**,build/**
-                        """
-                    }
-                }
-            }
+    stage('Docker Build') {
+        steps {
+            sh """
+            docker build \
+            -f docker/dockerfiles/frontend/Dockerfile \
+            -t frontend:${IMAGE_TAG} \
+            -t frontend:latest \
+            app/frontend
+            """
         }
+    }
 
-        stage('Quality Gate') {
-            steps {
-                echo 'Quality Gate Passed'
-            }
+    stage('Trivy Image Scan') {
+        steps {
+            sh """
+            trivy image \
+            --exit-code 1 \
+            --severity CRITICAL \
+            frontend:${IMAGE_TAG}
+            """
         }
+    }
 
-        stage('Docker Build') {
-            steps {
-                sh """
-                docker build \
-                -f docker/dockerfiles/frontend/Dockerfile \
-                -t frontend:${IMAGE_TAG} \
-                -t frontend:latest \
-                app/frontend
-                """
-            }
-        }
-
-        stage('Trivy Image Scan') {
-            steps {
-                sh """
-                trivy image \
-                --exit-code 1 \
-                --severity HIGH,CRITICAL \
-                frontend:${IMAGE_TAG}
-                """
+    stage('Login to ECR') {
+        steps {
+            withCredentials([
+                [$class: 'AmazonWebServicesCredentialsBinding',
+                 credentialsId: 'aws-creds']
+            ]) {
+                sh '''
+                aws ecr get-login-password \
+                --region ${AWS_DEFAULT_REGION} \
+                | docker login \
+                --username AWS \
+                --password-stdin ${REPOSITORY_URI}
+                '''
             }
         }
     }
 
-    post {
-        always {
-            echo 'Pipeline Completed'
-        }
+    stage('Tag & Push Image') {
+        steps {
+            sh '''
+            docker tag frontend:${IMAGE_TAG} \
+            ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
 
-        success {
-            echo 'Pipeline Succeeded'
-        }
+            docker tag frontend:${IMAGE_TAG} \
+            ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
 
-        failure {
-            echo 'Pipeline Failed'
+            docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
+
+            docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
+            '''
         }
     }
+}
+
+post {
+    always {
+        echo 'Pipeline Completed'
+    }
+
+    success {
+        echo 'Pipeline Succeeded'
+    }
+
+    failure {
+        echo 'Pipeline Failed'
+    }
+}
+```
+
 }
