@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 tools {
     nodejs 'nodejs'
 }
@@ -222,6 +221,4 @@ post {
         echo 'Pipeline Failed'
     }
 }
-```
-
 }
