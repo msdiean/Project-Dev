@@ -11,6 +11,9 @@ environment {
 
     AWS_DEFAULT_REGION = 'ap-south-2'
     AWS_ECR_REPO_NAME = 'f-end'
+
+    GIT_USER_NAME = 'msdiean'
+    GIT_REPO_NAME = 'Project-Dev'
 }
 
 options {
@@ -104,6 +107,8 @@ stages {
                     -Dsonar.projectName=frontend \
                     -Dsonar.projectKey=frontend \
                     -Dsonar.sources=src \
+                    -Dsonar.tests=src \
+                    -Dsonar.test.inclusions=src/**/*.test.js \
                     -Dsonar.exclusions=node_modules/**,build/** \
                     -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
                     """
@@ -173,10 +178,37 @@ stages {
             '''
         }
     }
+
+    stage('Update GitOps Repo') {
+        steps {
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'github-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GH_TOKEN'
+                )
+            ]) {
+                sh '''
+                git config --global user.email "jenkins@ci.com"
+                git config --global user.name "jenkins"
+
+                sed -i "s/tag:.*/tag: ${IMAGE_TAG}/" \
+                k8s/helm/frontend/values.yaml
+
+                git add k8s/helm/frontend/values.yaml
+
+                git commit -m "Update frontend image to ${IMAGE_TAG}" || true
+
+                git push https://${GIT_USER}:${GH_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                '''
+            }
+        }
+    }
 }
 
 post {
     always {
+        archiveArtifacts artifacts: 'app/frontend/coverage/**/*', allowEmptyArchive: true
         echo 'Pipeline Completed'
     }
 
