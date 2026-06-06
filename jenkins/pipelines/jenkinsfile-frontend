@@ -189,6 +189,7 @@ stages {
                 )
             ]) {
                 sh '''
+                git clone
                 https://${GIT_USER}:${GH_TOKEN}@github.com/msdiean/Project-Dev-Argo.git gitops
                 cd gitops
 
