@@ -13,7 +13,7 @@ environment {
     AWS_ECR_REPO_NAME = 'f-end'
 
     GIT_USER_NAME = 'msdiean'
-    GIT_REPO_NAME = 'Project-Dev'
+    GIT_REPO_NAME = 'Project-Dev-Argo'
 }
 
 options {
@@ -189,8 +189,8 @@ stages {
                 )
             ]) {
                 sh '''
-                git config --global user.email "jenkins@ci.com"
-                git config --global user.name "jenkins"
+                https://${GIT_USER}:${GH_TOKEN}@github.com/msdiean/Project-Dev-Argo.git gitops
+                cd gitops
 
                 sed -i "s/tag:.*/tag: ${IMAGE_TAG}/" \
                 k8s/helm/frontend/values.yaml
@@ -199,7 +199,7 @@ stages {
 
                 git commit -m "Update frontend image to ${IMAGE_TAG}" || true
 
-                git push https://${GIT_USER}:${GH_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                git push origin main
                 '''
             }
         }
