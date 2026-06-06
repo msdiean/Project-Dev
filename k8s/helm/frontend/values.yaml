@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: 767828733016.dkr.ecr.ap-south-1.amazonaws.com/frontend
-  tag: 52
+  tag: 53
   pullPolicy: Always
 
 imagePullSecrets:
