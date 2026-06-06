@@ -1,6 +1,7 @@
 pipeline {
 agent any
 
+```
 tools {
     nodejs 'nodejs'
 }
@@ -166,11 +167,9 @@ stages {
     stage('Tag & Push Image') {
         steps {
             sh '''
-            docker tag frontend:${IMAGE_TAG} \
-            ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
+            docker tag frontend:${IMAGE_TAG} ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
 
-            docker tag frontend:${IMAGE_TAG} \
-            ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
+            docker tag frontend:${IMAGE_TAG} ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:latest
 
             docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
 
@@ -189,18 +188,20 @@ stages {
                 )
             ]) {
                 sh '''
-                git clone
-                https://${GIT_USER}:${GH_TOKEN}@github.com/msdiean/Project-Dev-Argo.git gitops
+                git clone https://${GIT_USER}:${GH_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git gitops
+
                 cd gitops
 
-                sed -i "s/tag:.*/tag: ${IMAGE_TAG}/" \
-                k8s/helm/frontend/values.yaml
+                git config user.email "jenkins@ci.com"
+                git config user.name "jenkins"
+
+                sed -i "s|tag:.*|tag: ${IMAGE_TAG}|" k8s/helm/frontend/values.yaml
 
                 git add k8s/helm/frontend/values.yaml
 
                 git commit -m "Update frontend image to ${IMAGE_TAG}" || true
 
-                git push origin main
+                git push origin HEAD:main
                 '''
             }
         }
@@ -221,4 +222,6 @@ post {
         echo 'Pipeline Failed'
     }
 }
+```
+
 }
