@@ -89,12 +89,7 @@ stages {
 
     stage('Build') {
         steps {
-            dir('app/backend') {
-                sh '''
-                export NODE_OPTIONS=--openssl-legacy-provider
-                npm run build
-                '''
-            }
+           echo 'No build step required for backend'
         }
     }
 
