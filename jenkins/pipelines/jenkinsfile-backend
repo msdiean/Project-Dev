@@ -101,10 +101,10 @@ stages {
                     ${SCANNER_HOME}/bin/sonar-scanner \
                     -Dsonar.projectName=backend \
                     -Dsonar.projectKey=backend \
-                    -Dsonar.sources=src \
-                    -Dsonar.tests=src \
+                    -Dsonar.sources=. \
+                    -Dsonar.tests=. \
                     -Dsonar.test.inclusions=src/**/*.test.js \
-                    -Dsonar.exclusions=node_modules/**,build/** \
+                    -Dsonar.exclusions=node_modules/**,coverage/** \
                     -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
                     """
                 }
