@@ -1,20 +1,30 @@
-# Stage 1 - Build
-FROM node:14 AS backend
-WORKDIR /usr/src/app
+# =========================
+# Stage 1 - Dependencies
+# =========================
+FROM node:22-alpine AS dependencies
 
-# Copy package files first (better cache)
-COPY package*.json ./
-RUN npm install
-
-# Copy remaining backend code
-COPY . .
-
-# Stage 2 - Runtime
-FROM node:14-alpine
 WORKDIR /app
 
-COPY --from=backend /usr/src/app/node_modules ./node_modules
-COPY --from=backend /usr/src/app .
+COPY package*.json ./
 
-EXPOSE 3000
+RUN npm ci --omit=dev
+
+
+# =========================
+# Stage 2 - Runtime
+# =========================
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY --from=dependencies /app/node_modules ./node_modules
+
+COPY . .
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+USER appuser
+
+EXPOSE 3500
+
 CMD ["node", "index.js"]
